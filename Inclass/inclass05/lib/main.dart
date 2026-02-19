@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 void main() {
-  runApp(MaterialApp(home: DigitalPetApp()));
+  runApp(MaterialApp(
+    home: DigitalPetApp(),
+  )); 
 }
 
 class DigitalPetApp extends StatefulWidget {
@@ -15,8 +17,6 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   int happinessLevel = 50;
   int hungerLevel = 50;
   int energyLevel = 100;
-  String selectedActivity = "Run";
-  final List<String> activities = ["Run", "Sleep"];
   final TextEditingController nameController = TextEditingController();
   Timer? hungerTimer;
   int winCounter = 0;
@@ -44,9 +44,11 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   void _playWithPet() {
     setState(() {
       happinessLevel += 10;
-      energyLevel -= 10;
       if (happinessLevel > 100) happinessLevel = 100;
+
+      energyLevel -= 15;
       if (energyLevel < 0) energyLevel = 0;
+
       _updateHunger();
       checkWinLoss();
     });
@@ -56,29 +58,11 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
     setState(() {
       hungerLevel -= 10;
       if (hungerLevel < 0) hungerLevel = 0;
-      _updateHappiness();
-      checkWinLoss();
-    });
-  }
 
-  void _performActivity() {
-    setState(() {
-      if (selectedActivity == "Run") {
-        happinessLevel += 8;
-        hungerLevel += 8;
-        energyLevel -= 15;
-      } else if (selectedActivity == "Sleep") {
-        energyLevel += 20;
-        hungerLevel += 5;
-      }
-
-      if (happinessLevel > 100) happinessLevel = 100;
-      if (happinessLevel < 0) happinessLevel = 0;
-      if (hungerLevel > 100) hungerLevel = 100;
-      if (hungerLevel < 0) hungerLevel = 0;
+      energyLevel += 5;
       if (energyLevel > 100) energyLevel = 100;
-      if (energyLevel < 0) energyLevel = 0;
 
+      _updateHappiness();
       checkWinLoss();
     });
   }
@@ -159,78 +143,71 @@ class _DigitalPetAppState extends State<DigitalPetApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Digital Pet")),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Column(
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: "Enter Pet Name",
-                    border: OutlineInputBorder(),
-                  ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  labelText: "Enter Pet Name",
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      petName = nameController.text;
-                    });
-                  },
-                  child: Text("Set Name"),
-                ),
-                SizedBox(height: 20),
-                Text(
-                  petName,
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 20),
-                ColorFiltered(
-                  colorFilter: ColorFilter.mode(
-                    _moodColor(happinessLevel.toDouble()),
-                    BlendMode.modulate,
-                  ),
-                  child: Image.asset('assets/pet_image.png', height: 200),
-                ),
-                SizedBox(height: 20),
-                Text("Happiness: $happinessLevel"),
-                Text("Hunger: $hungerLevel"),
-                Text("Energy: $energyLevel"),
-                SizedBox(height: 10),
-                Text(
-                  moodIndicator(happinessLevel),
-                  style: TextStyle(fontSize: 22),
-                ),
-                SizedBox(height: 20),
-                DropdownButton<String>(
-                  value: selectedActivity,
-                  items: activities
-                      .map(
-                        (activity) => DropdownMenuItem<String>(
-                          value: activity,
-                          child: Text(activity),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    if (value == null) return;
-                    setState(() {
-                      selectedActivity = value;
-                    });
-                  },
-                ),
-                ElevatedButton(
-                  onPressed: _performActivity,
-                  child: Text("Do Activity"),
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(onPressed: _playWithPet, child: Text("Play")),
-                ElevatedButton(onPressed: _feedPet, child: Text("Feed")),
-              ],
+              ),
             ),
-          ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  petName = nameController.text;
+                });
+              },
+              child: Text("Set Name"),
+            ),
+            SizedBox(height: 20),
+            Text(
+              petName,
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20),
+            ColorFiltered(
+              colorFilter: ColorFilter.mode(
+                _moodColor(happinessLevel.toDouble()),
+                BlendMode.modulate,
+              ),
+              child: Image.asset(
+                'assets/pet_image.png',
+                height: 200,
+              ),
+            ),
+            SizedBox(height: 20),
+            Text("Happiness: $happinessLevel"),
+            Text("Hunger: $hungerLevel"),
+            Text("Energy: $energyLevel"),
+            SizedBox(height: 5),
+            LinearProgressIndicator(
+              value: energyLevel / 100,
+              minHeight: 12,
+              backgroundColor: Colors.grey.shade300,
+              color: Colors.blue,
+            ),
+            SizedBox(height: 10),
+            Text(
+              moodIndicator(happinessLevel),
+              style: TextStyle(fontSize: 22),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _playWithPet,
+              child: Text("Play"),
+            ),
+            ElevatedButton(
+              onPressed: _feedPet,
+              child: Text("Feed"),
+            ),
+          ],
         ),
       ),
     );
