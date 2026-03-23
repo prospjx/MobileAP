@@ -8,7 +8,7 @@ class CreateChallengeScreen extends StatefulWidget {
   const CreateChallengeScreen({super.key, this.challenge});
 
   @override
-  _CreateChallengeScreenState createState() => _CreateChallengeScreenState();
+  _CreateChallengeScreenState createState() => _CreateChallengeScreenState(); 
 }
 
 class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
