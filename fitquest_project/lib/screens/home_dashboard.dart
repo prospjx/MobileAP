@@ -63,23 +63,30 @@ class _HomeDashboardState extends State<HomeDashboard> {
   Widget buildHome() {
     return Scaffold(
       appBar: AppBar(title: const Text("FitQuest Dashboard")),
-      body: ListView.builder(
-        itemCount: challenges.length,
-        itemBuilder: (context, index) {
-          return ChallengeCard(
-            challenge: challenges[index],
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      ChallengeDetailsScreen(challenge: challenges[index]),
-                ),
-              ).then((_) => loadChallenges());
-            },
-          );
-        },
-      ),
+      body: challenges.isEmpty
+          ? const Center(
+              child: Text(
+                "No challenges yet. Tap + to create one!",
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            )
+          : ListView.builder(
+              itemCount: challenges.length,
+              itemBuilder: (context, index) {
+                return ChallengeCard(
+                  challenge: challenges[index],
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ChallengeDetailsScreen(challenge: challenges[index]),
+                      ),
+                    ).then((_) => loadChallenges());
+                  },
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {
