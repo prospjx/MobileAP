@@ -8,7 +8,14 @@ import 'progress_screen.dart';
 import 'settings_screen.dart';
 
 class HomeDashboard extends StatefulWidget {
-  const HomeDashboard({super.key});
+  final bool isDark;
+  final ValueChanged<bool>? onThemeChanged;
+
+  const HomeDashboard({
+    super.key,
+    this.isDark = false,
+    this.onThemeChanged,
+  });
 
   @override
   _HomeDashboardState createState() => _HomeDashboardState();
@@ -40,8 +47,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
   Widget getCurrentScreen() {
     if (_selectedIndex == 0) return buildHome();
-    if (_selectedIndex == 1) return ProgressScreen();
-    return SettingsScreen();
+    if (_selectedIndex == 1) return const ProgressScreen();
+    return SettingsScreen(
+      isDark: widget.isDark,
+      onThemeChanged: widget.onThemeChanged,
+    );
   }
 
   @override
