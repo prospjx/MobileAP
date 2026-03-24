@@ -17,6 +17,10 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _goalController = TextEditingController();
 
+  final FocusNode _titleFocus = FocusNode();
+  final FocusNode _descFocus = FocusNode();
+  final FocusNode _goalFocus = FocusNode();
+
   @override
   void initState() {
     super.initState();
@@ -27,14 +31,28 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descController.dispose();
+    _goalController.dispose();
+    _titleFocus.dispose();
+    _descFocus.dispose();
+    _goalFocus.dispose();
+    super.dispose();
+  }
+
   void saveChallenge() async {
     if (!_formKey.currentState!.validate()) return;
+
+    final goal = int.parse(_goalController.text);
+    final existingProgress = widget.challenge?.progress ?? 0;
 
     Challenge newChallenge = Challenge(
       title: _titleController.text,
       description: _descController.text,
-      goal: int.parse(_goalController.text),
-      progress: widget.challenge?.progress ?? 0,
+      goal: goal,
+      progress: existingProgress > goal ? goal : existingProgress,
       createdAt: DateTime.now().toIso8601String(),
     );
 
@@ -54,37 +72,53 @@ class _CreateChallengeScreenState extends State<CreateChallengeScreen> {
       appBar: AppBar(
         title: Text(widget.challenge == null ? "Add Challenge" : "Edit Challenge"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: "Title"),
-                validator: (value) =>
-                    value!.isEmpty ? "Title cannot be empty" : null,
-              ),
-              TextFormField(
-                controller: _descController,
-                decoration: const InputDecoration(labelText: "Description"),
-              ),
-              TextFormField(
-                controller: _goalController,
-                decoration: const InputDecoration(labelText: "Goal"),
-                keyboardType: TextInputType.number,
-                validator: (value) =>
-                    value!.isEmpty || int.tryParse(value) == null
-                        ? "Enter a valid number"
-                        : null,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: saveChallenge,
-                child: const Text("Save"),
-              ),
-            ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  focusNode: _titleFocus,
+                  autofocus: true,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => _descFocus.requestFocus(),
+                  decoration: const InputDecoration(labelText: "Title"),
+                  validator: (value) =>
+                      value!.isEmpty ? "Title cannot be empty" : null,
+                ),
+                TextFormField(
+                  controller: _descController,
+                  focusNode: _descFocus,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => _goalFocus.requestFocus(),
+                  decoration: const InputDecoration(labelText: "Description"),
+                ),
+                TextFormField(
+                  controller: _goalController,
+                  focusNode: _goalFocus,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => saveChallenge(),
+                  decoration: const InputDecoration(labelText: "Goal"),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    final parsed = int.tryParse(value ?? '');
+                    if (parsed == null || parsed <= 0) {
+                      return "Goal must be a number greater than 0";
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: saveChallenge,
+                  child: const Text("Save"),
+                ),
+              ],
+            ),
           ),
         ),
       ),

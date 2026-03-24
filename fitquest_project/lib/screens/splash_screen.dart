@@ -3,7 +3,14 @@ import 'home_dashboard.dart';
 import 'dart:async';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  final bool isDark;
+  final ValueChanged<bool>? onThemeChanged;
+
+  const SplashScreen({
+    super.key,
+    this.isDark = false,
+    this.onThemeChanged,
+  });
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
@@ -15,7 +22,14 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
     Timer(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => HomeDashboard()));
+        context,
+        MaterialPageRoute(
+          builder: (_) => HomeDashboard(
+            isDark: widget.isDark,
+            onThemeChanged: widget.onThemeChanged,
+          ),
+        ),
+      );
     });
   }
 

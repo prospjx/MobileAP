@@ -8,7 +8,14 @@ import 'progress_screen.dart';
 import 'settings_screen.dart';
 
 class HomeDashboard extends StatefulWidget {
-  const HomeDashboard({super.key});
+  final bool isDark;
+  final ValueChanged<bool>? onThemeChanged;
+
+  const HomeDashboard({
+    super.key,
+    this.isDark = false,
+    this.onThemeChanged,
+  });
 
   @override
   _HomeDashboardState createState() => _HomeDashboardState();
@@ -40,8 +47,11 @@ class _HomeDashboardState extends State<HomeDashboard> {
 
   Widget getCurrentScreen() {
     if (_selectedIndex == 0) return buildHome();
-    if (_selectedIndex == 1) return ProgressScreen();
-    return SettingsScreen();
+    if (_selectedIndex == 1) return const ProgressScreen();
+    return SettingsScreen(
+      isDark: widget.isDark,
+      onThemeChanged: widget.onThemeChanged,
+    );
   }
 
   @override
@@ -63,23 +73,30 @@ class _HomeDashboardState extends State<HomeDashboard> {
   Widget buildHome() {
     return Scaffold(
       appBar: AppBar(title: const Text("FitQuest Dashboard")),
-      body: ListView.builder(
-        itemCount: challenges.length,
-        itemBuilder: (context, index) {
-          return ChallengeCard(
-            challenge: challenges[index],
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      ChallengeDetailsScreen(challenge: challenges[index]),
-                ),
-              ).then((_) => loadChallenges());
-            },
-          );
-        },
-      ),
+      body: challenges.isEmpty
+          ? const Center(
+              child: Text(
+                "No challenges yet. Tap + to create one!",
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            )
+          : ListView.builder(
+              itemCount: challenges.length,
+              itemBuilder: (context, index) {
+                return ChallengeCard(
+                  challenge: challenges[index],
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ChallengeDetailsScreen(challenge: challenges[index]),
+                      ),
+                    ).then((_) => loadChallenges());
+                  },
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () {

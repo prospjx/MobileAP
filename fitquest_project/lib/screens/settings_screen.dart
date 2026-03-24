@@ -2,14 +2,20 @@ import 'package:flutter/material.dart';
 import '../utils/preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final bool isDark;
+  final ValueChanged<bool>? onThemeChanged;
+
+  const SettingsScreen({
+    super.key,
+    this.isDark = false,
+    this.onThemeChanged,
+  });
 
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isDark = false;
   int _streak = 0;
 
   @override
@@ -19,18 +25,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void loadPreferences() async {
-    bool theme = await Preferences.getTheme();
     int streak = await Preferences.getStreak();
     setState(() {
-      _isDark = theme;
       _streak = streak;
     });
   }
 
   void toggleTheme(bool value) {
-    setState(() {
-      _isDark = value;
-    });
+    widget.onThemeChanged?.call(value);
     Preferences.saveTheme(value);
   }
 
@@ -43,13 +45,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkEnabled = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           SwitchListTile(
             title: const Text("Dark Mode"),
-            value: _isDark,
+            value: isDarkEnabled,
             onChanged: toggleTheme,
           ),
           ListTile(
