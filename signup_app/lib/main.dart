@@ -35,18 +35,6 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmpasswordController = TextEditingController();
 
-  String _selectedAvatar = '😊';
-  final List<String> _avatars = ['😊', '🚀', '🌟', '🔥', '🎉', '💡', '😎', '🦄'];
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmpasswordController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold( // 👨 Parent
@@ -69,28 +57,6 @@ class _SignupPageState extends State<SignupPage> {
                       const Text(
                         'Create Your Account',
                         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Pick your avatar',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        alignment: WrapAlignment.center,
-                        children: _avatars.map((emoji) {
-                          return ChoiceChip(
-                            label: Text(emoji, style: const TextStyle(fontSize: 20)),
-                            selected: _selectedAvatar == emoji,
-                            onSelected: (_) {
-                              setState(() {
-                                _selectedAvatar = emoji;
-                              });
-                            },
-                          );
-                        }).toList(),
                       ),
                       const SizedBox(height: 20),
 
@@ -182,10 +148,7 @@ class _SignupPageState extends State<SignupPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => WelcomePage(
-                                  name: name,
-                                  avatar: _selectedAvatar,
-                                ),
+                                builder: (context) => WelcomePage(name: name),
                               ),
                             );
                           }
@@ -211,32 +174,14 @@ class _SignupPageState extends State<SignupPage> {
   }
 }
 
-class WelcomePage extends StatefulWidget {
+class _SignupPageState extends State<SignupPage> {
+  ...
+} // end Signup page
+
+class WelcomePage extends StatelessWidget {
   final String name;
-  final String avatar;
 
-  const WelcomePage({
-    super.key,
-    required this.name,
-    required this.avatar,
-  });
-
-  @override
-  State<WelcomePage> createState() => _WelcomePageState();
-}
-
-class _WelcomePageState extends State<WelcomePage> {
-  bool _show = false;
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(milliseconds: 120), () {
-      if (mounted) {
-        setState(() => _show = true);
-      }
-    });
-  }
+  const WelcomePage({super.key, required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -246,29 +191,10 @@ class _WelcomePageState extends State<WelcomePage> {
         backgroundColor: Colors.purple,
       ),
       body: Center(
-        child: AnimatedOpacity(
-          opacity: _show ? 1 : 0,
-          duration: const Duration(milliseconds: 700),
-          curve: Curves.easeOut,
-          child: AnimatedScale(
-            scale: _show ? 1 : 0.85,
-            duration: const Duration(milliseconds: 700),
-            curve: Curves.elasticOut,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(widget.avatar, style: const TextStyle(fontSize: 72)),
-                const SizedBox(height: 12),
-                Text(
-                  'Welcome, ${widget.name}!',
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                const Text('Signup successful!'),
-              ],
-            ),
-          ),
+        child: Text(
+          'Welcome, $name!',
+          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
         ),
       ),
     );
