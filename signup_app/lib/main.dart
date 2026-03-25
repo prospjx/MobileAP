@@ -174,10 +174,6 @@ class _SignupPageState extends State<SignupPage> {
   }
 }
 
-class _SignupPageState extends State<SignupPage> {
-  ...
-} // end Signup page
-
 class WelcomePage extends StatelessWidget {
   final String name;
 
