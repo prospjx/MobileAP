@@ -12,9 +12,34 @@ class ItemFirestoreService {
     return _firestore
         .collection('items')
         .withConverter<Item>(
-          fromFirestore: Item.fromFirestore,
-          toFirestore: (item, _) => item.toFirestore(),
+          fromFirestore: (snapshot, _) {
+            return Item.fromMap(snapshot.data() ?? {}, id: snapshot.id);
+          },
+          toFirestore: (item, _) {
+            return item.toMap();
+          },
         );
+  }
+
+  Future<void> createItem(Item item) async {
+    final now = DateTime.now();
+    final itemToCreate = item.copyWith(createdAt: now, updatedAt: now);
+    await _itemsRef.add(itemToCreate);
+  }
+
+  Future<void> updateItem(Item item) async {
+    final itemId = item.id;
+    if (itemId == null || itemId.isEmpty) {
+      throw ArgumentError('Item id is required to update an item.');
+    }
+
+    await _itemsRef
+        .doc(itemId)
+        .set(item.copyWith(updatedAt: DateTime.now()), SetOptions(merge: true));
+  }
+
+  Future<void> deleteItem(String id) {
+    return _itemsRef.doc(id).delete();
   }
 
   Stream<List<Item>> watchItems() {
@@ -25,47 +50,11 @@ class ItemFirestoreService {
   }
 
   Stream<Item?> watchItemById(String id) {
-    return _itemsRef.doc(id).snapshots().map((snapshot) {
-      if (!snapshot.exists) {
-        return null;
-      }
-      return snapshot.data();
-    });
+    return _itemsRef.doc(id).snapshots().map((doc) => doc.data());
   }
 
-  Future<String> createItem({
-    required String name,
-    required int quantity,
-    required double price,
-  }) async {
-    final now = DateTime.now();
-    final newRef = _itemsRef.doc();
-    final item = Item(
-      id: newRef.id,
-      name: name.trim(),
-      quantity: quantity,
-      price: price,
-      createdAt: now,
-      updatedAt: now,
-    );
-
-    await newRef.set(item);
-    return newRef.id;
-  }
-
-  Future<void> updateItem(Item item) {
-    final updated = item.copyWith(updatedAt: DateTime.now());
-    return _itemsRef.doc(item.id).set(updated);
-  }
-
-  Future<void> updateStock({required String id, required int quantity}) {
-    return _itemsRef.doc(id).update({
-      'quantity': quantity,
-      'updatedAt': Timestamp.fromDate(DateTime.now()),
-    });
-  }
-
-  Future<void> deleteItem(String id) {
-    return _itemsRef.doc(id).delete();
+  Future<Item?> getItemById(String id) async {
+    final snapshot = await _itemsRef.doc(id).get();
+    return snapshot.data();
   }
 }

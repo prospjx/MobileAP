@@ -2,28 +2,56 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Item {
   const Item({
-    required this.id,
+    this.id,
     required this.name,
     required this.quantity,
     required this.price,
+    required this.isAvailable,
     required this.createdAt,
     required this.updatedAt,
   });
 
-  final String id;
+  final String? id;
   final String name;
   final int quantity;
   final double price;
+  final bool isAvailable;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  bool get inStock => quantity > 0;
+  factory Item.fromMap(Map<String, dynamic> map, {String? id}) {
+    return Item(
+      id: id,
+      name: (map['name'] as String?)?.trim() ?? '',
+      quantity: (map['quantity'] as num?)?.toInt() ?? 0,
+      price: (map['price'] as num?)?.toDouble() ?? 0,
+      isAvailable: map['isAvailable'] as bool? ?? true,
+      createdAt: _toDateTime(map['createdAt']),
+      updatedAt: _toDateTime(map['updatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toMap({bool includeServerTimestamps = false}) {
+    return {
+      'name': name,
+      'quantity': quantity,
+      'price': price,
+      'isAvailable': isAvailable,
+      'createdAt': includeServerTimestamps
+          ? FieldValue.serverTimestamp()
+          : Timestamp.fromDate(createdAt),
+      'updatedAt': includeServerTimestamps
+          ? FieldValue.serverTimestamp()
+          : Timestamp.fromDate(updatedAt),
+    };
+  }
 
   Item copyWith({
     String? id,
     String? name,
     int? quantity,
     double? price,
+    bool? isAvailable,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -32,47 +60,13 @@ class Item {
       name: name ?? this.name,
       quantity: quantity ?? this.quantity,
       price: price ?? this.price,
+      isAvailable: isAvailable ?? this.isAvailable,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
-  Map<String, dynamic> toFirestore() {
-    return {
-      'name': name,
-      'quantity': quantity,
-      'price': price,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
-    };
-  }
-
-  factory Item.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    SnapshotOptions? _,
-  ) {
-    final data = snapshot.data();
-
-    if (data == null) {
-      throw StateError('Missing Firestore data for item ${snapshot.id}.');
-    }
-
-    final quantityRaw = data['quantity'];
-    final priceRaw = data['price'];
-    final createdAtRaw = data['createdAt'];
-    final updatedAtRaw = data['updatedAt'];
-
-    return Item(
-      id: snapshot.id,
-      name: (data['name'] as String?)?.trim() ?? '',
-      quantity: quantityRaw is int ? quantityRaw : (quantityRaw as num?)?.toInt() ?? 0,
-      price: priceRaw is double ? priceRaw : (priceRaw as num?)?.toDouble() ?? 0,
-      createdAt: _toDateTime(createdAtRaw),
-      updatedAt: _toDateTime(updatedAtRaw),
-    );
-  }
-
-  static DateTime _toDateTime(Object? value) {
+  static DateTime _toDateTime(dynamic value) {
     if (value is Timestamp) {
       return value.toDate();
     }
@@ -81,6 +75,6 @@ class Item {
       return value;
     }
 
-    return DateTime.fromMillisecondsSinceEpoch(0);
+    return DateTime.now();
   }
 }
