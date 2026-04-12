@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:task_manager/model/task.dart';
+import '../model/task.dart';
 
 class TaskListScreen extends StatefulWidget {
   const TaskListScreen({super.key});
