@@ -1,16 +1,63 @@
-# task_manager
+# Task Manager (Flutter + Firebase)
 
-A new Flutter project.
+A simple task manager app built with Flutter and Cloud Firestore.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- Add task with input validation (ignores empty titles)
+- Live Firestore task sync
+- Toggle task completion
+- Delete tasks
+- Add/remove list animations using AnimatedList + fade/size transitions
+- Dark mode support using ThemeMode.system
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Flutter
+- Firebase Core
+- Cloud Firestore
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Project Structure
+
+- lib/main.dart: app entry point, Firebase initialization, theme setup
+- lib/screens/task_list_screen.dart: task UI and Firestore list logic
+- lib/model/task.dart: Task data model with Firestore mapping
+- lib/firebase_options.dart: generated FlutterFire config
+
+## Prerequisites
+
+- Flutter SDK installed
+- Firebase project configured
+- FlutterFire CLI run for target platforms
+
+## Run Locally
+
+1. Install dependencies:
+
+```bash
+flutter pub get
+```
+
+2. Run the app:
+
+```bash
+flutter run
+```
+
+## Firebase Notes
+
+- This project currently includes Firebase options for Android.
+- If running on other platforms, regenerate firebase_options.dart with FlutterFire:
+
+```bash
+flutterfire configure
+```
+
+## Validation Commands
+
+```bash
+flutter analyze
+flutter test
+```
+
+If tests fail, update widget tests to match the current Firestore-based UI or mock Firebase.

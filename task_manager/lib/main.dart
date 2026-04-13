@@ -20,21 +20,50 @@ Future<void> main() async {
   runApp(MyApp(firebaseError: firebaseError));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final String? firebaseError;
 
   const MyApp({super.key, this.firebaseError});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  ThemeMode _themeMode = ThemeMode.system;
+
+  void _toggleThemeMode() {
+    setState(() {
+      _themeMode = switch (_themeMode) {
+        ThemeMode.system => ThemeMode.light,
+        ThemeMode.light => ThemeMode.dark,
+        ThemeMode.dark => ThemeMode.system,
+      };
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Task Manager',
+      themeMode: _themeMode,
       theme: ThemeData(
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: firebaseError == null
-          ? const TaskListScreen()
-          : FirebaseSetupErrorScreen(message: firebaseError!),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+      ),
+      home: widget.firebaseError == null
+          ? TaskListScreen(
+              themeMode: _themeMode,
+              onToggleTheme: _toggleThemeMode,
+            )
+          : FirebaseSetupErrorScreen(message: widget.firebaseError!),
     );
   }
 }
