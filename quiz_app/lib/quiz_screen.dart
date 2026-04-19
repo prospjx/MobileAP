@@ -404,45 +404,38 @@ class _QuizScreenState extends State<QuizScreen> {
     final minutes = secondsElapsed ~/ 60;
     final seconds = secondsElapsed % 60;
 
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 380),
-          child: Column(
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.check_circle, size: 80, color: Colors.green),
+          const SizedBox(height: 20),
+          const Text(
+            'Quiz Complete!',
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Score: $score / ${questions.length}',
+            style: const TextStyle(fontSize: 24),
+          ),
+          Text(
+            'Percentage: $percentage%',
+            style: const TextStyle(fontSize: 20),
+          ),
+          Text(
+            'Time: ${minutes}m ${seconds}s',
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+          const SizedBox(height: 40),
+          Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.check_circle, size: 80, color: Colors.green),
-              const SizedBox(height: 20),
-              const Text(
-                'Quiz Complete!',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Score: $score / ${questions.length}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 24),
-              ),
-              Text(
-                'Percentage: $percentage%',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 20),
-              ),
-              Text(
-                'Time: ${minutes}m ${seconds}s',
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-              const SizedBox(height: 28),
-              ElevatedButton.icon(
+              ElevatedButton(
                 onPressed: _restartQuiz,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Restart Quiz'),
+                child: const Text('Try Again'),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(width: 20),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
@@ -450,7 +443,7 @@ class _QuizScreenState extends State<QuizScreen> {
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
@@ -462,14 +455,6 @@ class _QuizScreenState extends State<QuizScreen> {
       appBar: AppBar(
         title: const Text('Quiz Application'),
         elevation: 0,
-        actions: [
-          if (screenState == 'results')
-            IconButton(
-              onPressed: _restartQuiz,
-              tooltip: 'Restart Quiz',
-              icon: const Icon(Icons.refresh),
-            ),
-        ],
       ),
       body: switch (screenState) {
         'loading' => _buildLoadingScreen(),
